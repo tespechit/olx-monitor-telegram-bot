@@ -7,10 +7,12 @@ use PHPHtmlParser\Dom;
 class OlxCliente
 {
     protected $urls;
+    protected $limite_paginas_url;
 
-    public function __construct($urls)
+    public function __construct($urls, $limite_paginas_url = 5)
     {
         $this->urls = $urls;
+        $this->limite_paginas_url = $limite_paginas_url;
     }
 
     private static function filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem, $com_foto)
@@ -137,14 +139,15 @@ class OlxCliente
 
             $datahora = "$data $hora";
 
-
             if ($tmp = \DateTime::createFromFormat('Y-m-d H:i', $datahora)) {
                 $created_at = $tmp->format('Y-m-d H:i:s');
             }
         }
 
+        $id = (int) current(array_reverse(explode('-', $url)));
+
         return [
-            'id' => base64_encode($titulo . $created_at),
+            'id' => $id,
             'titulo' => $titulo,
             'url' => $url,
             'preco' => $preco,
@@ -230,6 +233,10 @@ class OlxCliente
             $anuncios_pagina = self::filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem, $com_foto);
 
             $anuncios = array_merge($anuncios, $anuncios_pagina);
+
+            if ($qtd_paginas > $this->limite_paginas_url) {
+                $qtd_paginas = $this->limite_paginas_url;
+            }
 
             sleep(.5);
 
