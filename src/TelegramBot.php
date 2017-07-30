@@ -16,13 +16,11 @@ class TelegramBot
 
         $titulo = $anuncio['titulo'];
         $area = $anuncio['area'] . ' m²';
-        $preco = 'R$ ' . number_format($anuncio['preco'], 2);
+        $preco = 'R$ ' . number_format($anuncio['preco'], 2, ',', '.');
 //        $data = \DateTime::createFromFormat('Y-m-d H:i:s', $anuncio['created_at'])->format('H:i d/m/Y');
 
 
-        $titulo = str_pad(utf8_encode($titulo), 30, ' ');
-        $area = str_pad($area, 6, ' ');
-        $preco = str_pad($preco, 6, ' ');
+        $titulo = utf8_encode($titulo);
 
         $text = "$titulo - $area - $preco \n" .
             $anuncio['url'];
