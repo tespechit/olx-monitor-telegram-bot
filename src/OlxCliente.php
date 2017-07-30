@@ -238,8 +238,6 @@ class OlxCliente
                 $qtd_paginas = $this->limite_paginas_url;
             }
 
-            sleep(.5);
-
             for ($pagina = 2; $pagina <= $qtd_paginas; $pagina++) {
 
                 $dom = $this->getDom($url . '&o=' . $pagina);
@@ -250,7 +248,7 @@ class OlxCliente
 
                 $anuncios = array_merge($anuncios, $anuncios_pagina);
 
-                sleep(.5);
+                sleep(.25);
             }
 
         }
