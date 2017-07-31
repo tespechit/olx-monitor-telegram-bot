@@ -19,7 +19,7 @@ $telegram_contas = [
         'chat_id' => 62448110,
         'urls' => [
             'http://pe.olx.com.br/grande-recife/grande-recife/jaboatao-dos-guararapes/imoveis/aluguel/casas',
-            'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel',
+            'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel/casas',
         ],
         'limite_paginas' => 5,
         'criterios' => [
@@ -51,7 +51,7 @@ $command = function () use ($telegram_contas) {
 
         $criterios = $conta['criterios'];
 
-        $anuncios = $olx->procurar(
+        $anuncios_encontrados = $olx->procurar(
             $criterios['preco_min'],
             $criterios['preco_max'],
             $criterios['area_min'],
@@ -60,11 +60,11 @@ $command = function () use ($telegram_contas) {
         );
 
         $anuncios_db = $db->byId(
-            array_column($anuncios, 'id')
+            array_column($anuncios_encontrados, 'id')
         );
 
-        $diff = array_udiff($anuncios, $anuncios_db, function ($a, $b) {
-            return strlen(current($a)) - strlen(current($b));
+        $diff = array_udiff($anuncios_encontrados, $anuncios_db, function ($a, $b) {
+            return (int)current($a) - (int)current($b);
         });
 
         if (empty($diff)) {
