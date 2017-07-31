@@ -148,7 +148,7 @@ class OlxCliente
 
         return [
             'id' => $id,
-            'titulo' => $titulo,
+            'titulo' => utf8_encode($titulo),
             'url' => $url,
             'preco' => $preco,
             'quartos' => $quartos,

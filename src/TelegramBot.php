@@ -20,8 +20,6 @@ class TelegramBot
 //        $data = \DateTime::createFromFormat('Y-m-d H:i:s', $anuncio['created_at'])->format('H:i d/m/Y');
 
 
-        $titulo = utf8_encode($titulo);
-
         $text = "$titulo - $area - $preco \n" .
             $anuncio['url'];
 
