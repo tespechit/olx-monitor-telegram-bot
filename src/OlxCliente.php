@@ -132,7 +132,7 @@ class OlxCliente
                     $data = date('Y-m-d', time() - 86400);
                     break;
                 default:
-                    $data = self::parseData($texts_datahora[0]);
+                    $data = self::parseData($data);
             }
 
             $hora = $texts_datahora[1]->innerHtml();
@@ -144,7 +144,7 @@ class OlxCliente
             }
         }
 
-        $id = (int) current(array_reverse(explode('-', $url)));
+        $id = (int)current(array_reverse(explode('-', $url)));
 
         return [
             'id' => $id,
@@ -164,18 +164,18 @@ class OlxCliente
     private static function parseData($data)
     {
         $meses = [
-            'Jan' => '01',
-            'Fev' => '02',
-            'Mar' => '03',
-            'Abr' => '04',
-            'Mai' => '05',
-            'Jun' => '06',
-            'Jul' => '07',
-            'Ago' => '08',
-            'Set' => '09',
-            'Out' => '10',
-            'Nov' => '11',
-            'Dez' => '12',
+            'jan' => '01',
+            'fev' => '02',
+            'mar' => '03',
+            'abr' => '04',
+            'mai' => '05',
+            'jun' => '06',
+            'jul' => '07',
+            'ago' => '08',
+            'set' => '09',
+            'out' => '10',
+            'nov' => '11',
+            'dez' => '12',
         ];
 
         $arr = explode(' ', $data);
