@@ -14,19 +14,29 @@ require_once __DIR__ . '/vendor/autoload.php';
 $env = new Dotenv(__DIR__);
 $env->load();
 
+$telegram_contas = [
+    [
+        'chat_id' => 62448110,
+        'urls' => [
+            'http://pe.olx.com.br/grande-recife/grande-recife/jaboatao-dos-guararapes/imoveis/aluguel/casas',
+            'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel',
+        ],
+        'limite_paginas' => 5,
+        'criterios' => [
+            'preco_min' => 450,
+            'preco_max' => 850,
+            'area_min' => 40,
+            'area_max' => 120,
+            'quartos_min' => 2,
+        ],
+    ],
+];
 
 $jobby = new Jobby();
 
-$command = function () {
-
-    $chat_id = 62448110;
+$command = function () use ($telegram_contas) {
 
     $bot = new TelegramBot($_ENV['TELEGRAM_TOKEN']);
-
-    $olx = new OlxCliente([
-        'http://pe.olx.com.br/grande-recife/grande-recife/jaboatao-dos-guararapes/imoveis/aluguel',
-        'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel',
-    ]);
 
     $db_path = __DIR__ . '/db.sqlite';
 
@@ -36,27 +46,37 @@ $command = function () {
 
     $db = new AnunciosRepository($db_path);
 
-    $anuncios = $olx->procurar(400, 850, 40, 120, 2);
+    foreach ($telegram_contas as $conta) {
+        $olx = new OlxCliente($conta['urls'], $conta['limite_paginas'] ?? 5);
 
-    $anuncios_db = $db->byId(
-        array_column($anuncios, 'id')
-    );
+        $criterios = $conta['criterios'];
 
-    $diff = array_udiff($anuncios, $anuncios_db, function ($a, $b) {
-        return strlen(current($a)) - strlen(current($b));
-    });
+        $anuncios = $olx->procurar(
+            $criterios['preco_min'],
+            $criterios['preco_max'],
+            $criterios['area_min'],
+            $criterios['area_max'],
+            $criterios['quartos_min']
+        );
 
+        $anuncios_db = $db->byId(
+            array_column($anuncios, 'id')
+        );
 
-    if (empty($diff)) {
-        return true;
+        $diff = array_udiff($anuncios, $anuncios_db, function ($a, $b) {
+            return strlen(current($a)) - strlen(current($b));
+        });
+
+        if (empty($diff)) {
+            continue;
+        }
+
+        foreach ($diff as $anuncio) {
+            $bot->enviarAnuncio($conta['chat_id'], $anuncio);
+        }
+
+        $db->save($diff);
     }
-
-
-    foreach ($diff as $anuncio) {
-        $bot->enviarAnuncio($chat_id, $anuncio);
-    }
-
-    $db->save($diff);
 
     return true;
 };
