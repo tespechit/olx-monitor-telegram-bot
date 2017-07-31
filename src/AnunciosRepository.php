@@ -36,7 +36,7 @@ class AnunciosRepository
 
         $sql = 'CREATE TABLE anuncios
                 (
-                    id TEXT,
+                    id INT,
                     titulo TEXT,
                     url TEXT,
                     preco INT,
