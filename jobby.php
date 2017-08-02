@@ -11,9 +11,6 @@ use Jobby\Jobby;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$env = new Dotenv(__DIR__);
-$env->load();
-
 $telegram_contas = [
     [
         'chat_id' => 62448110,
@@ -35,6 +32,8 @@ $telegram_contas = [
 $jobby = new Jobby();
 
 $command = function () use ($telegram_contas) {
+    $env = new Dotenv(__DIR__);
+    $env->load();
 
     $bot = new TelegramBot($_ENV['TELEGRAM_TOKEN']);
 
