@@ -47,7 +47,7 @@ $command = function () use ($telegram_contas) {
     $db = new AnunciosRepository($db_path);
 
     foreach ($telegram_contas as $conta) {
-        $olx = new OlxCliente($conta['urls'], $conta['limite_paginas'] ?? 5);
+        $olx = new OlxCliente($conta['urls'], $conta['limite_paginas']);
 
         $criterios = $conta['criterios'];
 
