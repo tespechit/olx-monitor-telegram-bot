@@ -93,4 +93,6 @@ $jobby->add('EncontrarAnuncios', [
     'enabled' => true,
 ]);
 
-$jobby->run();
+$jobby->run([
+    'debug' => true
+]);
