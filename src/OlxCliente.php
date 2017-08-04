@@ -115,8 +115,20 @@ class OlxCliente
         preg_match('#.*([0-9]) vaga.*#', $detalhes, $matches);
         $carros = count($matches) > 1 ? $matches[1] : '';
 
-        //$regiao = $item->find('.OLXad-list-line-2')->innerHtml();
 
+        $item_dom = $this->getDom($url);
+        $localizacao_atributos = $item_dom->find('.section_OLXad-info .atributes');
+
+        $cidade = $cep = $bairro = '';
+
+        if (count($localizacao_atributos) == 2) {
+            $atributos = $localizacao_atributos[1]->find('.description');
+
+            if (count($atributos) >= 3) {
+                $cidade = trim($atributos[0]->innerHtml());
+                $bairro = trim($atributos[2]->innerHtml());
+            }
+        }
 
         $created_at = date('Y-m-d H:i:s');
 
@@ -154,8 +166,8 @@ class OlxCliente
             'quartos' => $quartos,
             'area' => $area,
             'carros' => $carros,
-            'cidade' => '',
-            'bairro' => '',
+            'cidade' => $cidade,
+            'bairro' => $bairro,
             'foto' => $foto,
             'created_at' => $created_at,
         ];
