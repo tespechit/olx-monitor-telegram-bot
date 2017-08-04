@@ -13,23 +13,15 @@ class TelegramBot
 
     public function enviarAnuncio($chat_id, $anuncio)
     {
-
-        $titulo = $anuncio['titulo'];
+        $cidade = $anuncio['cidade'];
+        $bairro = $anuncio['bairro'];
         $area = $anuncio['area'] . ' m²';
         $preco = 'R$ ' . number_format($anuncio['preco'], 2, ',', '.');
-//        $data = \DateTime::createFromFormat('Y-m-d H:i:s', $anuncio['created_at'])->format('H:i d/m/Y');
 
-
-        $text = "$titulo - $area - $preco \n" .
+        $text = " $cidade / $bairro - $area - $preco \n" .
             $anuncio['url'];
 
         $this->bot->sendMessage($chat_id, $text);
-
-//        $url = parse_url($anuncio['foto']);
-//        if (isset($url['host']) && isset($url['path'])) {
-//            $url = $url['host'] . $url['path'];
-//            $this->bot->sendPhoto($chat_id, $url);
-//        }
 
     }
 
