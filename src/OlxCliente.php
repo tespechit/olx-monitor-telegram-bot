@@ -126,7 +126,10 @@ class OlxCliente
 
             if (count($atributos) >= 3) {
                 $cidade = trim($atributos[0]->innerHtml());
+                $cep = trim($atributos[1]->innerHtml());
                 $bairro = trim($atributos[2]->innerHtml());
+
+                $cep = preg_replace('/\D/', '', $cep);
             }
         }
 
@@ -168,6 +171,7 @@ class OlxCliente
             'carros' => $carros,
             'cidade' => $cidade,
             'bairro' => $bairro,
+            'cep' => $cep,
             'foto' => $foto,
             'created_at' => $created_at,
         ];
