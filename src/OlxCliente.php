@@ -7,12 +7,12 @@ use PHPHtmlParser\Dom;
 class OlxCliente
 {
     protected $urls;
-    protected $limite_paginas_url;
+    protected $limite_paginas_por_url;
 
-    public function __construct($urls, $limite_paginas_url = 5)
+    public function __construct($urls, $limite_paginas_por_url = 5)
     {
         $this->urls = $urls;
-        $this->limite_paginas_url = $limite_paginas_url;
+        $this->limite_paginas_por_url = $limite_paginas_por_url;
     }
 
     private static function filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem, $com_foto)
@@ -231,22 +231,13 @@ class OlxCliente
 
             $dom = self::getDom($url);
 
-            if (!$qtd_paginas = self::getQuantidadePaginas($dom)) {
-                $qtd_paginas = 1;
+            $total_paginas = self::getQuantidadePaginas($dom);
+
+            if ($total_paginas > $this->limite_paginas_por_url) {
+                $total_paginas = $this->limite_paginas_por_url;
             }
 
-            $anuncios_pagina = self::getAnuncios($dom);
-
-            $anuncios_pagina = self::filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem, $com_foto);
-
-            $anuncios = array_merge($anuncios, $anuncios_pagina);
-
-            if ($qtd_paginas > $this->limite_paginas_url) {
-                $qtd_paginas = $this->limite_paginas_url;
-            }
-
-            for ($pagina = 2; $pagina <= $qtd_paginas; $pagina++) {
-
+            for ($pagina = 1; $pagina <= $total_paginas; $pagina++) {
                 $dom = $this->getDom($url . '&o=' . $pagina);
 
                 $anuncios_pagina = self::getAnuncios($dom);
