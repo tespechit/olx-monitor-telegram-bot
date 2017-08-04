@@ -202,7 +202,14 @@ class OlxCliente
 
         $anuncios = [];
 
-        foreach ($this->urls as $url) {
+        foreach ($this->urls as $url_raw) {
+
+            $parsed_url = parse_url($url_raw);
+            $url = $parsed_url['scheme'] . '://' . $parsed_url['host'] . $parsed_url['path'];
+
+            if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+                continue;
+            }
 
             $params = [];
 
