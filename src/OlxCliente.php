@@ -93,9 +93,10 @@ class OlxCliente
 
         $img = $item->find('.OLXad-list-image-box img');
         if (count($img)) {
-            $foto = $img[0]->getAttribute('src');
+            $src = $img[0]->getAttribute('src');
+            $url_foto = strpos($src, '//') !== 0 ? $src: '';
         } else {
-            $foto = '';
+            $url_foto = '';
         }
 
 
@@ -172,7 +173,7 @@ class OlxCliente
             'cidade' => $cidade,
             'bairro' => $bairro,
             'cep' => $cep,
-            'foto' => $foto,
+            'foto' => $url_foto,
             'created_at' => $created_at,
         ];
     }
