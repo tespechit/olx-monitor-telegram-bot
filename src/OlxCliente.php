@@ -15,7 +15,7 @@ class OlxCliente
         $this->limite_paginas_por_url = $limite_paginas_por_url;
     }
 
-    private static function filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem, $com_foto)
+    private function filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem, $com_foto)
     {
         $filtrado = [];
 
@@ -50,14 +50,14 @@ class OlxCliente
         return $filtrado;
     }
 
-    private static function getAnuncios(Dom $dom)
+    private function getAnuncios(Dom $dom)
     {
         $anuncios = [];
 
         $collection = $dom->find('.section_listing .OLXad-list-link');
 
         foreach ($collection as $item) {
-            $anuncios[] = self::parseAnuncio($item);
+            $anuncios[] = $this->parseAnuncio($item);
         }
 
         return $anuncios;
@@ -85,7 +85,7 @@ class OlxCliente
         return count($li);
     }
 
-    private static function parseAnuncio(Dom\HtmlNode $item)
+    private function parseAnuncio(Dom\HtmlNode $item)
     {
 
         $titulo = $item->getAttribute('title');
@@ -132,7 +132,7 @@ class OlxCliente
                     $data = date('Y-m-d', time() - 86400);
                     break;
                 default:
-                    $data = self::parseData($data);
+                    $data = $this->parseData($data);
             }
 
             $hora = $texts_datahora[1]->innerHtml();
@@ -161,7 +161,7 @@ class OlxCliente
         ];
     }
 
-    private static function parseData($data)
+    private function parseData($data)
     {
         $meses = [
             'jan' => '01',
@@ -229,9 +229,9 @@ class OlxCliente
                 $url .= '?' . implode('&', $params);
             }
 
-            $dom = self::getDom($url);
+            $dom = $this->getDom($url);
 
-            $total_paginas = self::getQuantidadePaginas($dom);
+            $total_paginas = $this->getQuantidadePaginas($dom);
 
             if ($total_paginas > $this->limite_paginas_por_url) {
                 $total_paginas = $this->limite_paginas_por_url;
@@ -240,8 +240,8 @@ class OlxCliente
             for ($pagina = 1; $pagina <= $total_paginas; $pagina++) {
                 $dom = $this->getDom($url . '&o=' . $pagina);
 
-                $anuncios_pagina = self::getAnuncios($dom);
-                $anuncios_pagina = self::filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem,
+                $anuncios_pagina = $this->getAnuncios($dom);
+                $anuncios_pagina = $this->filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem,
                     $com_foto);
 
                 $anuncios = array_merge($anuncios, $anuncios_pagina);
