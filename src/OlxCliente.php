@@ -15,7 +15,7 @@ class OlxCliente
         $this->limite_paginas_por_url = $limite_paginas_por_url;
     }
 
-    private function filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem, $com_foto)
+    private function filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem)
     {
         $filtrado = [];
 
@@ -34,12 +34,6 @@ class OlxCliente
 
             if ($vaga_garagem) {
                 if (empty($anuncio['carros'])) {
-                    continue;
-                }
-            }
-
-            if ($com_foto) {
-                if (empty($anuncio['foto'])) {
                     continue;
                 }
             }
@@ -92,13 +86,6 @@ class OlxCliente
         $url = $item->getAttribute('href');
 
         $img = $item->find('.OLXad-list-image-box img');
-        if (count($img)) {
-            $src = $img[0]->getAttribute('src');
-            $url_foto = strpos($src, '//') !== 0 ? $src: '';
-        } else {
-            $url_foto = '';
-        }
-
 
         $preco = $item->find('.OLXad-list-price')->innerHtml();
         $preco = preg_replace('/[^0-9]+/', '', $preco);
@@ -173,7 +160,6 @@ class OlxCliente
             'cidade' => utf8_encode($cidade),
             'bairro' => utf8_encode($bairro),
             'cep' => $cep,
-            'foto' => $url_foto,
             'created_at' => $created_at,
         ];
     }
@@ -213,8 +199,7 @@ class OlxCliente
         $area_min,
         $area_max,
         $quartos_min = 1,
-        $vaga_garagem = false,
-        $com_foto = true
+        $vaga_garagem = false
     ) {
 
         $anuncios = [];
@@ -257,9 +242,12 @@ class OlxCliente
             for ($pagina = 1; $pagina <= $total_paginas; $pagina++) {
                 $dom = $this->getDom($url . '&o=' . $pagina);
 
-                $anuncios_pagina = $this->getAnuncios($dom);
-                $anuncios_pagina = $this->filtrarAnuncios($anuncios_pagina, $area_min, $area_max, $vaga_garagem,
-                    $com_foto);
+                $anuncios_pagina = $this->filtrarAnuncios(
+                    $this->getAnuncios($dom),
+                    $area_min,
+                    $area_max,
+                    $vaga_garagem
+                );
 
                 $anuncios = array_merge($anuncios, $anuncios_pagina);
 
