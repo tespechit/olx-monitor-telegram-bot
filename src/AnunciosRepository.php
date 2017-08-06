@@ -15,13 +15,13 @@ class AnunciosRepository
 
     public function all()
     {
-        $sql = 'SELECT id, titulo, url, preco, quartos, area, carros, cidade, bairro, cep, foto, created_at FROM anuncios';
+        $sql = 'SELECT id, titulo, url, preco, quartos, area, carros, cidade, bairro, cep, created_at FROM anuncios';
         return $this->query($sql);
     }
 
     public function byId($ids)
     {
-        $sql = "SELECT id, titulo, url, preco, quartos, area, carros, cidade, bairro, cep, foto, created_at 
+        $sql = "SELECT id, titulo, url, preco, quartos, area, carros, cidade, bairro, cep, created_at 
                 FROM anuncios
                 WHERE id IN ('" . implode("','", $ids) . "')";
 
@@ -46,7 +46,6 @@ class AnunciosRepository
                     cidade TEXT,
                     bairro TEXT,
                     cep INT,
-                    foto TEXT,
                     created_at DATETIME
                 )';
 
@@ -62,14 +61,14 @@ class AnunciosRepository
             $values[] = "(
             '{$anuncio['id']}', '{$anuncio['titulo']}', '{$anuncio['url']}', '{$anuncio['preco']}', '{$anuncio['quartos']}',
             '{$anuncio['area']}', '{$anuncio['carros']}', '{$anuncio['cidade']}', '{$anuncio['bairro']}', '{$anuncio['cep']}', 
-            '{$anuncio['foto']}', '{$anuncio['created_at']}'
+            '{$anuncio['created_at']}'
             )";
         }
 
         $sql = "INSERT INTO anuncios (
                   id, titulo, url, preco, quartos,
                   area, carros, cidade, bairro, cep,
-                  foto, created_at
+                  created_at
                 ) VALUES " . implode(',', $values);
 
         return $this->exec($sql);
