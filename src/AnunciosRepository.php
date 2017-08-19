@@ -2,37 +2,18 @@
 
 namespace App;
 
-use SQLite3;
+use App\Olx\OlxAnuncio;
 
-class AnunciosRepository
+class AnunciosRepository extends Repository
 {
-    protected $sqlite;
-
-    public function __construct($db_file)
+    public function __construct(\PDO $pdo)
     {
-        $this->sqlite = new SQLite3($db_file);
+        parent::__construct($pdo);
     }
 
-    public function all()
+    public function criarSchema()
     {
-        $sql = 'SELECT id, titulo, url, preco, quartos, area, carros, cidade, bairro, cep, created_at FROM anuncios';
-        return $this->query($sql);
-    }
-
-    public function byId($ids)
-    {
-        $sql = "SELECT id, titulo, url, preco, quartos, area, carros, cidade, bairro, cep, created_at 
-                FROM anuncios
-                WHERE id IN ('" . implode("','", $ids) . "')";
-
-        return $this->queryAll($sql);
-    }
-
-    public static function criarSchema($db_file)
-    {
-        $sqlite = new SQLite3($db_file);
-
-        $sqlite->exec('PRAGMA encoding="UTF-8";');
+        $this->exec('PRAGMA encoding="UTF-8"');
 
         $sql = 'CREATE TABLE anuncios
                 (
@@ -42,58 +23,67 @@ class AnunciosRepository
                     preco INT,
                     quartos INT,
                     area INT,
-                    carros INT,
+                    condominio INT,
+                    vagas_garagem INT,
                     cidade TEXT,
                     bairro TEXT,
                     cep INT,
                     created_at DATETIME
                 )';
 
-        $sqlite->exec($sql);
+        return $this->exec($sql) === 0;
     }
 
-    public function save($anuncios)
+    public function all()
     {
-        $values = [];
+        $sql = 'SELECT 
+                  id, titulo, url, preco, quartos, area, condominio, vagas_garagem, cidade, bairro, cep, created_at 
+                FROM anuncios';
 
-        foreach ($anuncios as $anuncio) {
+        return $this->queryAll($sql, [], 'App\Olx\OlxAnuncio');
+    }
 
-            $values[] = "(
-            '{$anuncio['id']}', '{$anuncio['titulo']}', '{$anuncio['url']}', '{$anuncio['preco']}', '{$anuncio['quartos']}',
-            '{$anuncio['area']}', '{$anuncio['carros']}', '{$anuncio['cidade']}', '{$anuncio['bairro']}', '{$anuncio['cep']}', 
-            '{$anuncio['created_at']}'
-            )";
-        }
+    public function byId($ids)
+    {
+        $sql = "SELECT id, titulo, url, preco, quartos, area, condominio, vagas_garagem, cidade, bairro, cep, created_at 
+                FROM anuncios 
+                WHERE id IN ('" . implode("','", $ids) . "')";
 
-        $sql = "INSERT INTO anuncios (
+        return $this->queryAll($sql, [], 'App\Olx\OlxAnuncio');
+    }
+
+    public function save(OlxAnuncio $anuncio)
+    {
+        $sql = 'INSERT INTO anuncios (
                   id, titulo, url, preco, quartos,
-                  area, carros, cidade, bairro, cep,
-                  created_at
-                ) VALUES " . implode(',', $values);
+                  area, condominio, vagas_garagem, cidade, bairro,
+                  cep, created_at
+                ) VALUES (
+                  :id, :titulo, :url, :preco, :quartos,
+                  :area, :condominio, :vagas_garagem, :cidade, :bairro, 
+                  :cep, :created_at
+                )';
 
-        return $this->exec($sql);
+        return $this->exec($sql, [
+                'id' => $anuncio->id,
+                'titulo' => $anuncio->titulo,
+                'url' => $anuncio->url,
+                'preco' => $anuncio->preco,
+                'quartos' => $anuncio->quartos,
+                'area' => $anuncio->area,
+                'condominio' => $anuncio->condominio,
+                'vagas_garagem' => $anuncio->vagas_garagem,
+                'cidade' => $anuncio->cidade,
+                'bairro' => $anuncio->bairro,
+                'cep' => $anuncio->cep,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]) === 1;
     }
 
-    private function exec($sql)
+    public function saveMany(array $anuncios)
     {
-        return $this->sqlite->exec($sql);
-    }
-
-    private function queryAll($sql)
-    {
-        $result = [];
-
-
-        $query = $this->sqlite->query($sql);
-
-        if (!$query) {
-            return $result;
+        foreach ($anuncios as $anuncio) {
+            $this->save($anuncio);
         }
-
-        while ($fetch = $query->fetchArray(SQLITE3_NUM)) {
-            $result[] = $fetch;
-        }
-
-        return $result;
     }
 }

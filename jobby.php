@@ -4,94 +4,56 @@
 // * * * * * cd /path/to/project && php jobby.php 1>> /dev/null 2>&1
 
 use App\AnunciosRepository;
-use App\OlxCliente;
-use App\TelegramBot;
+use App\Olx\OlxCriterio;
+use App\ProcurarAnuncios;
+use App\Telegram\TelegramBot;
 use Dotenv\Dotenv;
 use Jobby\Jobby;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$telegram_contas = [
-    [
-        'chat_id' => 62448110,
-        'urls' => [
-            'http://pe.olx.com.br/grande-recife/grande-recife/jaboatao-dos-guararapes/imoveis/aluguel/casas',
-            'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel/casas',
-        ],
-        'limite_paginas' => 5,
-        'criterios' => [
-            'preco_min' => 450,
-            'preco_max' => 850,
-            'area_min' => 40,
-            'area_max' => 120,
-            'quartos_min' => 2,
-        ],
-    ],
-];
+if (isset(getopt('', ['criar-schema::'])['criar-schema'])) {
+    $pdo = new \PDO('sqlite:' . __DIR__ . '/db.sqlite');
 
-$jobby = new Jobby();
+    $repository = new AnunciosRepository($pdo);
 
-$command = function () use ($telegram_contas) {
-    $env = new Dotenv(__DIR__);
-    $env->load();
-
-    $bot = new TelegramBot($_ENV['TELEGRAM_TOKEN']);
-
-    $db_path = __DIR__ . '/db.sqlite';
-
-    if (!is_readable($db_path)) {
-        AnunciosRepository::criarSchema($db_path);
-    }
-
-    $db = new AnunciosRepository($db_path);
-
-    foreach ($telegram_contas as $conta) {
-        $olx = new OlxCliente($conta['urls'], $conta['limite_paginas']);
-
-        $criterios = $conta['criterios'];
-
-        $anuncios_encontrados = $olx->procurar(
-            $criterios['preco_min'],
-            $criterios['preco_max'],
-            $criterios['area_min'],
-            $criterios['area_max'],
-            $criterios['quartos_min']
-        );
-
-        $anuncios_db = $db->byId(
-            array_column($anuncios_encontrados, 'id')
-        );
-
-        $diff = array_udiff($anuncios_encontrados, $anuncios_db, function ($a, $b) {
-            return (int)current($a) - (int)current($b);
-        });
-
-        if (empty($diff)) {
-            continue;
-        }
-
-        foreach ($diff as $anuncio) {
-            $bot->enviarAnuncio($conta['chat_id'], $anuncio);
-        }
-
-        $db->save($diff);
-    }
-
-    return true;
-};
-
-if (in_array('teste', array_keys(getopt('', ['teste::'])))) {
-    $command();
+    $repository->criarSchema();
     exit;
 }
 
-$jobby->add('EncontrarAnuncios', [
-    'command' => $command,
-    'schedule' => '*/10 * * * *',
-    'output' => 'logs/EncontrarAnuncios.log',
-    'enabled' => true,
+$jobby = new Jobby();
+
+$jobby->add('ProcurarAnuncios', [
+
+    'schedule' => '* * * * *',
+
+    'command' => function () {
+
+        $env = new Dotenv(__DIR__);
+        $env->load();
+
+        $env->required(['telegram_token']);
+
+        $chat_id = 62448110;
+
+        $criterio = (new OlxCriterio())
+            ->setPreco(400, 850)
+            ->setArea(50, 120)
+            ->setQuartos(2);
+
+        $urls = [
+            'http://pe.olx.com.br/grande-recife/grande-recife/jaboatao-dos-guararapes/imoveis/aluguel/casas',
+            'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel/casas',
+        ];
+
+        return ProcurarAnuncios::run(
+            new App\Olx\OlxCliente($criterio, $urls),
+            new AnunciosRepository(new \PDO('sqlite:' . __DIR__ . '/db.sqlite')),
+            new TelegramBot($_ENV['telegram_token'], $chat_id)
+        );
+    },
+
+    'output' => 'logs/ProcurarAnuncios.log',
 ]);
 
-$jobby->run([
-    'debug' => true
-]);
+$jobby->run();
