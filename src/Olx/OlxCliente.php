@@ -26,7 +26,7 @@ class OlxCliente
         $this->urls = $urls;
     }
 
-    public function procurar($seguir_paginacao = false, $max_paginas = 5)
+    public function procurarAnuncios($seguir_paginacao = false, $max_paginas = 5)
     {
         $urls_anuncios = [];
 
@@ -35,11 +35,8 @@ class OlxCliente
             $num_paginas = 1;
 
             if ($seguir_paginacao) {
-                $num_paginas = $this->getNumeroPaginas($url);
-
-                if ($num_paginas > $max_paginas) {
-                    $num_paginas = $max_paginas;
-                }
+                $num_paginas = $this->getQuantidadePaginas($url);
+                $num_paginas = $num_paginas > $max_paginas ? $max_paginas: $num_paginas;
             }
 
             $urls = $this->getAnunciosUrls($url, $num_paginas);
@@ -105,7 +102,7 @@ class OlxCliente
         ]);
     }
 
-    private function getNumeroPaginas(string $url)
+    private function getQuantidadePaginas(string $url)
     {
         $li = $this->getDom($url)->find('.module_pagination li.number');
         return count($li);
@@ -221,7 +218,6 @@ class OlxCliente
         $anuncios = [];
 
         foreach ($urls as $url) {
-
             $anuncio = $this->parseAnuncio($url);
 
             if (!$criterio->validar($anuncio)) {
@@ -229,8 +225,6 @@ class OlxCliente
             }
 
             $anuncios[] = $anuncio;
-
-            usleep(250000);
         }
 
         return $anuncios;

@@ -41,11 +41,11 @@ class OlxClienteTest extends TestCase
         $this->assertNotFalse(DateTime::createFromFormat('Y-m-d H:i:s', $anuncio->created_at));
     }
 
-    public function test_detectar_numero_paginas()
+    public function test_detectar_quantidade_paginas()
     {
         $olx_lista_anuncios = __DIR__ . '/../resources/olx-lista-anuncios.html';
 
-        $num_paginas = $this->invokeMethod($this->olx, 'getNumeroPaginas', [$olx_lista_anuncios]);
+        $num_paginas = $this->invokeMethod($this->olx, 'getQuantidadePaginas', [$olx_lista_anuncios]);
 
         $this->assertEquals($num_paginas, 9);
     }
