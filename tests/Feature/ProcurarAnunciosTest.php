@@ -37,13 +37,7 @@ class ProcurarAnunciosTest extends TestCase
     {
         $url = 'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel/casas';
 
-        $criterio = (new OlxCriterio())->setPreco(1, 1000)
-            ->setArea(1, 100)
-            ->setQuartos(1, 3);
-
-        $olx = new OlxCliente($criterio, [$url]);
-
-        $this->bot->notificar();
+        $olx = new OlxCliente(new OlxCriterio(), [$url]);
 
         $result = ProcurarAnuncios::run(
             $olx,
