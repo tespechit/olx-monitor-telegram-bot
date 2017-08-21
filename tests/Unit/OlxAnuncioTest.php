@@ -8,7 +8,7 @@ class OlxAnuncioTest extends TestCase
 
     public function test_consegue_instanciar()
     {
-        $anuncio = new OlxAnuncio([
+        $atributos = [
             'id' => 123123123,
             'titulo' => 'Titulo Anúncio 2/4',
             'url' => 'http://olx.com.br/anuncio',
@@ -16,21 +16,16 @@ class OlxAnuncioTest extends TestCase
             'quartos' => 2,
             'area' => 65,
             'condominio' => 0,
-            'carros' => 1,
+            'vagas_garagem' => 1,
             'cidade' => 'Recife',
             'bairro' => 'Cidade Universitária',
             'cep' => '50740900',
-        ]);
+        ];
 
-        $this->assertEquals($anuncio->id, 123123123);
-        $this->assertEquals($anuncio->titulo, 'Titulo Anúncio 2/4');
-        $this->assertEquals($anuncio->url, 'http://olx.com.br/anuncio');
-        $this->assertEquals($anuncio->preco, 800);
-        $this->assertEquals($anuncio->quartos, 2);
-        $this->assertEquals($anuncio->area, 65);
-        $this->assertEquals($anuncio->condominio, 0);
-        $this->assertEquals($anuncio->cidade, 'Recife');
-        $this->assertEquals($anuncio->bairro, 'Cidade Universitária');
-        $this->assertEquals($anuncio->cep, '50740900');
+        $anuncio = new OlxAnuncio($atributos);
+
+        foreach ($atributos as $atributo => $valor) {
+            $this->assertEquals($anuncio->{$atributo}, $valor);
+        }
     }
 }
