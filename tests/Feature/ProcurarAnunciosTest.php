@@ -4,14 +4,14 @@ use App\AnunciosRepository;
 use App\Olx\OlxCliente;
 use App\Olx\OlxCriterio;
 use App\ProcurarAnuncios;
-use App\Telegram\TelegramBot;
+use App\Telegram\Bot;
 use Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
 
 class ProcurarAnunciosTest extends TestCase
 {
     /**
-     * @var TelegramBot
+     * @var Bot
      */
     protected $bot;
 
@@ -30,7 +30,7 @@ class ProcurarAnunciosTest extends TestCase
         $this->repository = new AnunciosRepository(new \PDO($dsn));
         $this->repository->criarSchema();
 
-        $this->bot = new TelegramBot($_ENV['telegram_token'], 62448110);
+        $this->bot = new Bot($_ENV['telegram_token'], 62448110);
     }
 
     public function test_procurar_anuncios()

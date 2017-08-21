@@ -6,7 +6,7 @@
 use App\AnunciosRepository;
 use App\Olx\OlxCriterio;
 use App\ProcurarAnuncios;
-use App\Telegram\TelegramBot;
+use App\Telegram\Bot;
 use Dotenv\Dotenv;
 use Jobby\Jobby;
 
@@ -49,7 +49,7 @@ $jobby->add('ProcurarAnuncios', [
         return ProcurarAnuncios::run(
             new App\Olx\OlxCliente($criterio, $urls),
             new AnunciosRepository(new \PDO('sqlite:' . __DIR__ . '/db.sqlite')),
-            new TelegramBot($_ENV['telegram_token'], $chat_id)
+            new Bot($_ENV['telegram_token'], $chat_id)
         );
     },
 

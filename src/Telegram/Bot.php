@@ -4,7 +4,7 @@ namespace App\Telegram;
 
 use App\Olx\OlxAnuncio;
 
-class TelegramBot
+class Bot
 {
     protected $bot;
 

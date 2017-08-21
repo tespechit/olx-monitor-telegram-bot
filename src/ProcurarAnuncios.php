@@ -4,11 +4,11 @@ namespace App;
 
 use App\Olx\OlxCliente;
 use App\Olx\OlxCriterio;
-use App\Telegram\TelegramBot;
+use App\Telegram\Bot;
 
 class ProcurarAnuncios
 {
-    public static function run(OlxCliente $olx, AnunciosRepository $repository, TelegramBot $bot)
+    public static function run(OlxCliente $olx, AnunciosRepository $repository, Bot $bot)
     {
         $bot->notificar();
 
