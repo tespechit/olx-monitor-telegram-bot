@@ -27,16 +27,22 @@ class OlxClienteTest extends TestCase
 
         $this->assertInstanceOf(OlxAnuncio::class, $anuncio);
 
-        $this->assertEquals($anuncio->id, 123123123);
-        $this->assertEquals($anuncio->titulo, 'Casa em Campo Grande');
-        $this->assertEquals($anuncio->preco, 1200);
-        $this->assertEquals($anuncio->quartos, 3);
-        $this->assertEquals($anuncio->area, 55);
-        $this->assertEquals($anuncio->condominio, 0);
-        $this->assertEquals($anuncio->vagas_garagem, 1);
-        $this->assertEquals($anuncio->cidade, 'Recife');
-        $this->assertEquals($anuncio->bairro, 'Campo Grande');
-        $this->assertEquals($anuncio->cep, '52040050');
+        $atributos = [
+            'id' => 123123123,
+            'titulo' => 'Casa em Campo Grande',
+            'preco' => 1200,
+            'quartos' => 3,
+            'area' => 55,
+            'condominio' => 0,
+            'vagas_garagem' => 1,
+            'cidade' => 'Recife',
+            'bairro' => 'Campo Grande',
+            'cep' => '52040050',
+        ];
+
+        foreach ($atributos as $atributo => $valor) {
+            $this->assertEquals($anuncio->{$atributo}, $valor);
+        }
 
         $this->assertNotFalse(DateTime::createFromFormat('Y-m-d H:i:s', $anuncio->created_at));
     }
