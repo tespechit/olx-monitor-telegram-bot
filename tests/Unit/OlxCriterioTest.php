@@ -9,23 +9,22 @@ class OlxCriterioTest extends TestCase
 
     public function test_consegue_instanciar()
     {
-        $criterio = new OlxCriterio([
+        $atributos = [
             'preco_min' => 5,
             'preco_max' => 10,
             'area_min' => 10,
             'area_max' => 20,
             'quartos_min' => 15,
             'quartos_max' => 30,
-            'garagem' => true
-        ]);
+            'garagem' => true,
+        ];
 
-        $this->assertEquals($criterio->preco_min, 5);
-        $this->assertEquals($criterio->preco_max, 10);
-        $this->assertEquals($criterio->area_min, 10);
-        $this->assertEquals($criterio->area_max, 20);
-        $this->assertEquals($criterio->quartos_min, 15);
-        $this->assertEquals($criterio->quartos_max, 30);
-        $this->assertEquals($criterio->garagem, true);
+        $criterio = new OlxCriterio($atributos);
+
+        foreach ($atributos as $atributo => $valor)
+        {
+            $this->assertEquals($criterio->{$atributo}, $valor);
+        }
     }
 
     public function test_set_preco()
