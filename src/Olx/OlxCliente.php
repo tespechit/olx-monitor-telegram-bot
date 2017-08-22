@@ -3,7 +3,6 @@
 namespace App\Olx;
 
 use PHPHtmlParser\Dom;
-use SebastianBergmann\GlobalState\RuntimeException;
 
 class OlxCliente
 {
@@ -89,7 +88,7 @@ class OlxCliente
         ]);
 
         if (!$html = @file_get_contents($url, false, $context)) {
-            throw new RuntimeException("file_get_contents('$url')'");
+            throw new \RuntimeException("file_get_contents('$url')'");
         }
 
         $html = utf8_encode($html);
