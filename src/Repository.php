@@ -17,24 +17,16 @@ class Repository
 
     public function exec(string $sql, array $params = [])
     {
-        $stmt = $this->prepare($sql, $params);
-
-        $stmt->execute($params);
-
-        return $stmt->rowCount();
+        return $this->prepare($sql, $params)
+            ->rowCount();
     }
 
     public function queryAll($sql, array $params = [], string $fetch_class = '')
     {
-        $smtp = $this->prepare($sql, $params);
+        $fetch_style = empty($fetch_class) ? \PDO::FETCH_ASSOC: \PDO::FETCH_CLASS;
 
-        $smtp->execute($params);
-
-        if (!empty($fetch_class)) {
-            return $smtp->fetchAll(\PDO::FETCH_CLASS, $fetch_class);
-        }
-
-        return $smtp->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->prepare($sql, $params)
+            ->fetchAll($fetch_style, $fetch_class);
     }
 
     private function prepare(string $sql, array $params = [])
@@ -47,6 +39,8 @@ class Repository
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
         }
+
+        $stmt->execute();
 
         return $stmt;
     }
