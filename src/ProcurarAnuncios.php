@@ -12,7 +12,7 @@ class ProcurarAnuncios
     {
         $bot->notificar();
 
-        $anuncios = $olx->procurarAnuncios(true, 5);
+        $anuncios = $olx->procurarAnuncios();
 
         $ids = array_map(function ($anuncio) {
             return $anuncio->id;
