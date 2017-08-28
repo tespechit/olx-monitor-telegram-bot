@@ -18,11 +18,12 @@ class Bot
 
     public function enviarAnuncio(OlxAnuncio $anuncio)
     {
-        $text = sprintf("%s / %s - %d m² - R$ %.2f\n %s",
+        $text = sprintf("%s / %s - %d m² - R$ %.2f + %.2f \n %s",
             $anuncio->cidade,
             $anuncio->bairro,
             $anuncio->area,
             $anuncio->preco,
+            $anuncio->condominio,
             $anuncio->url
         );
 
