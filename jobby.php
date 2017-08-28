@@ -12,14 +12,6 @@ use Jobby\Jobby;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-if (isset(getopt('', ['criar-schema::'])['criar-schema'])) {
-    $pdo = new \PDO('sqlite:' . __DIR__ . '/db.sqlite');
-
-    $repository = new AnunciosRepository($pdo);
-
-    $repository->criarSchema();
-    exit;
-}
 
 $jobby = new Jobby();
 
@@ -48,9 +40,18 @@ $jobby->add('ProcurarAnuncios', [
             'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel/casas',
         ];
 
+        $db_path = __DIR__ . '/db.sqlite';
+        $criar_schema = !file_exists($db_path);
+
+        $pdo = new \PDO('sqlite:' . $db_path);
+
+        if ($criar_schema) {
+            (new AnunciosRepository($pdo))->criarSchema();
+        }
+
         return ProcurarAnuncios::run(
             new App\Olx\OlxCliente($criterio, $urls),
-            new AnunciosRepository(new \PDO('sqlite:' . __DIR__ . '/db.sqlite')),
+            new AnunciosRepository($pdo),
             new Bot($_ENV['telegram_token'], $chat_id)
         );
     },
