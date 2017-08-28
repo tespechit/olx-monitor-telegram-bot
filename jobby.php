@@ -32,7 +32,7 @@ $jobby->add('ProcurarAnuncios', [
 
         $criterio = (new OlxCriterio())
             ->setPreco(400, 850)
-            ->setArea(50, 120)
+            ->setArea(40)
             ->setQuartos(2);
 
         $urls = [
