@@ -11,42 +11,30 @@ class OlxCliente
      */
     protected $dom;
 
-    /**
-     * @var OlxCriterio
-     */
-    protected $criterio;
-
-    protected $urls;
-
-    function __construct(OlxCriterio $criterio, array $urls)
+    function __construct()
     {
         $this->dom = new Dom();
-        $this->criterio = $criterio;
-        $this->urls = $urls;
     }
 
-    public function procurarAnuncios($seguir_paginacao = false, $max_paginas = 5)
+    public function getAnunciosUrls(string $url, $paginacao = false)
     {
-        $urls_anuncios = [];
-
-        foreach ($this->urls as $url) {
-
-            $num_paginas = 1;
-
-            if ($seguir_paginacao) {
-                $num_paginas = $this->getQuantidadePaginas($url);
-                $num_paginas = $num_paginas > $max_paginas ? $max_paginas : $num_paginas;
-            }
-
-            $urls = $this->getAnunciosUrls($url, $num_paginas);
-
-            $urls_anuncios = array_merge($urls_anuncios, $urls);
+        if (!$paginacao) {
+            return $this->extraiAnunciosUrl($url);
         }
 
-        return $this->getAnuncios($this->criterio, $urls_anuncios);
+        $num_paginas = $this->getQuantidadePaginas($url);
+
+        $urls = [];
+
+        for ($pagina = 1; $pagina <= $num_paginas; $pagina++) {
+            $url_pagina = $url . '?o=' . $pagina;
+            $urls[] = $this->extraiAnunciosUrl($url_pagina);
+        }
+
+        return array_reduce($urls, 'array_merge', []);
     }
 
-    private function extraiAnunciosUrl($url)
+    private function extraiAnunciosUrl(string $url)
     {
         $urls = [];
 
@@ -58,26 +46,7 @@ class OlxCliente
         return $urls;
     }
 
-    private function getAnunciosUrls(string $url, $num_paginas = 1)
-    {
-        if ($num_paginas == 1) {
-            return $this->extraiAnunciosUrl($url);
-        }
-
-        $urls = [];
-
-        for ($pagina = 1; $pagina <= $num_paginas; $pagina++) {
-            $url_pagina = $url . '?o=' . $pagina;
-
-            $urls_anuncios_pagina = $this->extraiAnunciosUrl($url_pagina);
-
-            $urls = array_merge($urls, $urls_anuncios_pagina);
-        }
-
-        return $urls;
-    }
-
-    private function getDom($url)
+    private function getDom(string $url)
     {
         $context = stream_context_create([
             'http' => [
@@ -107,12 +76,7 @@ class OlxCliente
         return count($li);
     }
 
-    private function parseNumber($str)
-    {
-        return preg_replace('/[^0-9]+/', '', $str);
-    }
-
-    private function parseAnuncio(string $url)
+    public function getAnuncio(string $url)
     {
         $dom = $this->getDom($url);
 
@@ -209,20 +173,8 @@ class OlxCliente
         ]);
     }
 
-    private function getAnuncios(OlxCriterio $criterio, array $urls)
+    private function parseNumber($value)
     {
-        $anuncios = [];
-
-        foreach ($urls as $url) {
-            $anuncio = $this->parseAnuncio($url);
-
-            if (!$criterio->validar($anuncio)) {
-                continue;
-            }
-
-            $anuncios[] = $anuncio;
-        }
-
-        return $anuncios;
+        return preg_replace('/[^0-9]+/', '', $value);
     }
 }

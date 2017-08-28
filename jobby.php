@@ -4,6 +4,7 @@
 // * * * * * cd /path/to/project && php jobby.php 1>> /dev/null 2>&1
 
 use App\AnunciosRepository;
+use App\Olx\OlxCliente;
 use App\Olx\OlxCriterio;
 use App\Telegram\Bot;
 use Dotenv\Dotenv;
@@ -50,25 +51,47 @@ $jobby->add('ProcurarAnuncios', [
         $bot = new Bot($_ENV['telegram_token'], $chat_id);
         $bot->notificar();
 
-        $olx = new App\Olx\OlxCliente($criterio, $urls);
-        $anuncios = $olx->procurarAnuncios();
+        $olx = new OlxCliente();
 
-        $ids = array_map(function ($anuncio) {
-            return $anuncio->id;
-        }, $anuncios);
+        foreach ($urls as $url) {
+            $anuncios_urls = $olx->getAnunciosUrls($url, false);
 
-        $anuncios_db = $repository->byId($ids);
+            $anuncios = [];
+            foreach ($anuncios_urls as $anuncio_url) {
+                try {
+                    $anuncio = $olx->getAnuncio($anuncio_url);
 
-        $novos_anuncios = array_udiff($anuncios, $anuncios_db, function ($a, $b) {
-            return $a->id - $b->id;
-        });
+                    if (!$criterio->validar($anuncio)) {
+                        continue;
+                    }
 
-        $bot->enviarAnuncios($novos_anuncios);
+                    $anuncios[] = $anuncio;
+                } catch (Exception $e) {
+                }
+            }
 
-        $repository->saveMany($novos_anuncios);
+            $ids = array_map(function ($anuncio) {
+                return $anuncio->id;
+            }, $anuncios);
+
+            $anuncios_db = $repository->byId($ids);
+
+            $novos_anuncios = array_udiff($anuncios, $anuncios_db, function ($a, $b) {
+                return $a->id - $b->id;
+            });
+
+            $bot->enviarAnuncios($novos_anuncios);
+
+            $repository->saveMany($novos_anuncios);
+        }
     },
 
     'output' => 'logs/ProcurarAnuncios.log',
 ]);
+
+if (in_array('--run', $argv)) {
+    $jobby->getJobs()['ProcurarAnuncios']['closure']();
+    exit;
+}
 
 $jobby->run();
