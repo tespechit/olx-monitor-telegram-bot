@@ -5,13 +5,11 @@
 
 use App\AnunciosRepository;
 use App\Olx\OlxCriterio;
-use App\ProcurarAnuncios;
 use App\Telegram\Bot;
 use Dotenv\Dotenv;
 use Jobby\Jobby;
 
 require_once __DIR__ . '/vendor/autoload.php';
-
 
 $jobby = new Jobby();
 
@@ -43,17 +41,31 @@ $jobby->add('ProcurarAnuncios', [
         $db_path = __DIR__ . '/db.sqlite';
         $criar_schema = !file_exists($db_path);
 
-        $pdo = new \PDO('sqlite:' . $db_path);
+        $repository = new AnunciosRepository(new \PDO('sqlite:' . $db_path));
 
         if ($criar_schema) {
-            (new AnunciosRepository($pdo))->criarSchema();
+            $repository->criarSchema();
         }
 
-        return ProcurarAnuncios::run(
-            new App\Olx\OlxCliente($criterio, $urls),
-            new AnunciosRepository($pdo),
-            new Bot($_ENV['telegram_token'], $chat_id)
-        );
+        $bot = new Bot($_ENV['telegram_token'], $chat_id);
+        $bot->notificar();
+
+        $olx = new App\Olx\OlxCliente($criterio, $urls);
+        $anuncios = $olx->procurarAnuncios();
+
+        $ids = array_map(function ($anuncio) {
+            return $anuncio->id;
+        }, $anuncios);
+
+        $anuncios_db = $repository->byId($ids);
+
+        $novos_anuncios = array_udiff($anuncios, $anuncios_db, function ($a, $b) {
+            return $a->id - $b->id;
+        });
+
+        $bot->enviarAnuncios($novos_anuncios);
+
+        $repository->saveMany($novos_anuncios);
     },
 
     'output' => 'logs/ProcurarAnuncios.log',
