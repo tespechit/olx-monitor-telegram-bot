@@ -35,7 +35,7 @@ class OlxCliente
 
             if ($seguir_paginacao) {
                 $num_paginas = $this->getQuantidadePaginas($url);
-                $num_paginas = $num_paginas > $max_paginas ? $max_paginas: $num_paginas;
+                $num_paginas = $num_paginas > $max_paginas ? $max_paginas : $num_paginas;
             }
 
             $urls = $this->getAnunciosUrls($url, $num_paginas);
@@ -136,7 +136,6 @@ class OlxCliente
             $term = trim($item->find('.term')->innerHtml);
             $description = $item->find('.description')->innerHtml;
 
-
             switch ($term) {
                 case 'Tipo:':
                     $tipo = trim($description);
@@ -155,6 +154,10 @@ class OlxCliente
                     break;
 
                 case 'Área construída:':
+                    $area = $this->parseNumber($description);
+                    break;
+
+                case 'Área útil:':
                     $area = $this->parseNumber($description);
                     break;
 
