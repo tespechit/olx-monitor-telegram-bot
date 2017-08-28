@@ -84,6 +84,8 @@ $jobby->add('ProcurarAnuncios', [
 
             $repository->saveMany($novos_anuncios);
         }
+
+        return true;
     },
 
     'output' => 'logs/ProcurarAnuncios.log',
