@@ -17,9 +17,9 @@ $jobby = new Jobby();
 
 $jobby->add('ProcurarAnuncios', [
 
-    'schedule' => '*/10 * * * *',
+    'schedule' => '*/5 * * * *',
 
-    'maxRuntime' => '300',
+    'maxRuntime' => '240',
 
     'command' => function () {
 
