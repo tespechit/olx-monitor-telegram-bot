@@ -36,8 +36,8 @@ $jobby->add('ProcurarAnuncios', [
             ->setQuartos(2);
 
         $urls = [
-            'http://pe.olx.com.br/grande-recife/grande-recife/jaboatao-dos-guararapes/imoveis/aluguel/casas',
-            'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel/casas',
+            'http://pe.olx.com.br/grande-recife/grande-recife/jaboatao-dos-guararapes/imoveis',
+            'http://pe.olx.com.br/grande-recife/recife/imoveis',
         ];
 
         $db_path = __DIR__ . '/db.sqlite';
