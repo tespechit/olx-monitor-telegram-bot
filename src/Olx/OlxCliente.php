@@ -163,7 +163,7 @@ class OlxCliente
                     break;
 
                 default:
-                    throw new RuntimeException('OLXad-details term desconhecido: ' . $term);
+                    throw new \RuntimeException('OLXad-details term desconhecido: ' . $term . ' - ' . $url);
             }
         }
 
@@ -190,7 +190,7 @@ class OlxCliente
                     break;
 
                 default:
-                    throw new RuntimeException('OLXad-location term desconhecido: ' . $term);
+                    throw new \RuntimeException('OLXad-location term desconhecido: ' . $term . ' - ' . $url);
             }
         }
 
