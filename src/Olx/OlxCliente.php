@@ -164,9 +164,6 @@ class OlxCliente
                 case 'Vagas na garagem:':
                     $vagas_garagem = $this->parseNumber($description);
                     break;
-
-                default:
-                    throw new \RuntimeException('OLXad-details term desconhecido: ' . $term . ' - ' . $url);
             }
         }
 
@@ -191,9 +188,6 @@ class OlxCliente
                 case 'Bairro:':
                     $bairro = trim($description);
                     break;
-
-                default:
-                    throw new \RuntimeException('OLXad-location term desconhecido: ' . $term . ' - ' . $url);
             }
         }
 
