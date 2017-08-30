@@ -39,6 +39,12 @@ $jobby->add('ProcurarAnuncios', [
             'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel',
         ];
 
+        $black_list = [
+            'candeias', 'torre', 'iputinga', 'linha-do-tiro', 'arruda', 'boa-vista',
+            'ipsep', 'santo-amaro', 'imbiribeira', 'varzea', 'caxanga', 'igarassu', 'olinda',
+            'dom-helder'
+        ];
+
         $db_path = __DIR__ . '/db.sqlite';
         $criar_schema = !file_exists($db_path);
 
@@ -55,6 +61,15 @@ $jobby->add('ProcurarAnuncios', [
 
         foreach ($urls as $url) {
             $anuncios_urls = $olx->getAnunciosUrls($url, false);
+
+            $anuncios_urls = array_filter($anuncios_urls, function ($url) use ($black_list) {
+                foreach ($black_list as $item) {
+                    if (strpos($url, $item) !== false)
+                        return false;
+                }
+
+                return true;
+            });
 
             $anuncios = [];
             foreach ($anuncios_urls as $anuncio_url) {
