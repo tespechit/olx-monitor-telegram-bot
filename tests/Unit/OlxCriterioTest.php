@@ -68,6 +68,15 @@ class OlxCriterioTest extends TestCase
         $this->assertTrue($criterio->garagem);
     }
 
+    public function test_valida_true_com_anuncio_e_criterio_null()
+    {
+        $anuncio = new OlxAnuncio([]);
+
+        $criterio = new OlxCriterio([]);
+
+        $this->assertTrue($criterio->validar($anuncio));
+    }
+
     public function test_valida_anuncio_preco()
     {
         $criterio = (new OlxCriterio())
