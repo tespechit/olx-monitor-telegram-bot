@@ -4,6 +4,7 @@
 // * * * * * cd /path/to/project && php jobby.php 1>> /dev/null 2>&1
 
 use App\AnunciosRepository;
+use App\CepsIO;
 use App\Olx\OlxCliente;
 use App\Olx\OlxCriterio;
 use App\Telegram\Bot;
@@ -11,6 +12,8 @@ use Dotenv\Dotenv;
 use Jobby\Jobby;
 
 require_once __DIR__ . '/vendor/autoload.php';
+
+const DB_PATH = __DIR__ . '/db.sqlite';
 
 $command = function () {
 
@@ -48,10 +51,9 @@ $command = function () {
         'dom-helder'
     ];
 
-    $db_path = __DIR__ . '/db.sqlite';
-    $criar_schema = !file_exists($db_path);
+    $criar_schema = !file_exists(DB_PATH);
 
-    $repository = new AnunciosRepository(new \PDO('sqlite:' . $db_path));
+    $repository = new AnunciosRepository(new \PDO('sqlite:' . DB_PATH));
 
     if ($criar_schema) {
         $repository->criarSchema();
@@ -101,16 +103,23 @@ $command = function () {
             return $a->id - $b->id;
         });
 
+        $ceps_io = new CepsIO();
+
         foreach ($novos_anuncios as $anuncio) {
 
             $total_aluguel = (float)$anuncio->preco + (float)$anuncio->condominio;
 
-            $text = sprintf("%s / %s / %s\n R$ %.2f - %d m²\n %s",
-                $anuncio->cidade,
-                $anuncio->bairro,
-                $anuncio->cep,
+            if (!$endereco = $ceps_io->getEndereco($anuncio->cep)) {
+                $endereco = $anuncio->bairro . ' / ' . $anuncio->cidade;
+            }
+
+            $endereco .= ' / ' . $anuncio->cep;
+
+            $text = sprintf("%s \n R$ %.2f - %d m² - %s \n %s",
+                $endereco,
                 $total_aluguel,
                 $anuncio->area,
+                $anuncio->vagas_garagem ? ':blue_car:': 'Sem garagem',
                 $anuncio->url
             );
 
