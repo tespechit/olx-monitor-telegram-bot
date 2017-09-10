@@ -31,9 +31,20 @@ $command = function () {
         'http://pe.olx.com.br/grande-recife/recife/imoveis/aluguel',
     ];
 
-    $black_list = [
-        'candeias', 'torre', 'iputinga', 'linha-do-tiro', 'arruda', 'boa-vista',
-        'ipsep', 'santo-amaro', 'imbiribeira', 'varzea', 'caxanga', 'igarassu', 'olinda',
+    $black_list_words = [
+        'candeias',
+        'torre',
+        'iputinga',
+        'linha-do-tiro',
+        'arruda',
+        'boa-vista',
+        'ipsep',
+        'santo-amaro',
+        'imbiribeira',
+        'varzea',
+        'caxanga',
+        'igarassu',
+        'olinda',
         'dom-helder'
     ];
 
@@ -54,10 +65,11 @@ $command = function () {
     foreach ($urls as $url) {
         $anuncios_urls = $olx->getAnunciosUrls($url, false);
 
-        $anuncios_urls = array_filter($anuncios_urls, function ($url) use ($black_list) {
-            foreach ($black_list as $item) {
-                if (strpos($url, $item) !== false)
+        $anuncios_urls = array_filter($anuncios_urls, function ($url) use ($black_list_words) {
+            foreach ($black_list_words as $item) {
+                if (strpos($url, $item) !== false) {
                     return false;
+                }
             }
 
             return true;
@@ -74,6 +86,8 @@ $command = function () {
 
                 $anuncios[] = $anuncio;
             } catch (Exception $e) {
+                $error = sprintf("Falha ao obter anúnio da url %s. Erro %s", $anuncio_url, $e->getMessage());
+                $bot->sendMessage($error);
             }
         }
 
@@ -89,7 +103,7 @@ $command = function () {
 
         foreach ($novos_anuncios as $anuncio) {
 
-            $total_aluguel = (float) $anuncio->preco + (float) $anuncio->condominio;
+            $total_aluguel = (float)$anuncio->preco + (float)$anuncio->condominio;
 
             $text = sprintf("%s / %s / %s\n R$ %.2f - %d m²\n %s",
                 $anuncio->cidade,
