@@ -56,27 +56,15 @@ class OlxCriterio
 
     public function validar(OlxAnuncio $anuncio)
     {
-        if ($this->isCampoMenor($anuncio->preco, $this->preco_min)) {
+        if (!$this->estaEntre($anuncio->preco, $this->preco_min, $this->preco_max)) {
             return false;
         }
 
-        if ($this->isCampoMaior($anuncio->preco, $this->preco_max)) {
+        if (!$this->estaEntre($anuncio->area, $this->area_min, $this->area_max)) {
             return false;
         }
 
-        if ($this->isCampoMenor($anuncio->area, $this->area_min)) {
-            return false;
-        }
-
-        if ($this->isCampoMaior($anuncio->area, $this->area_max)) {
-            return false;
-        }
-
-        if ($this->isCampoMenor($anuncio->quartos, $this->quartos_min)) {
-            return false;
-        }
-
-        if ($this->isCampoMaior($anuncio->quartos, $this->quartos_max)) {
+        if (!$this->estaEntre($anuncio->quartos, $this->quartos_min, $this->quartos_max)) {
             return false;
         }
 
@@ -87,37 +75,28 @@ class OlxCriterio
         return true;
     }
 
-    private function isCampoMenor($campo_anuncio, $campo_criterio)
+    private function estaEntre($campo_anuncio, $campo_criterio_min, $campo_criterio_max)
     {
-        if (is_null($campo_criterio)) {
-            return false;
-        }
-
         if (is_null($campo_anuncio)) {
             return true;
         }
 
-        if ($campo_anuncio < $campo_criterio) {
+        if (is_null($campo_criterio_min) && is_null($campo_criterio_max)) {
             return true;
         }
 
-        return false;
-    }
+        $campo_criterio_min = $campo_criterio_min ?? PHP_INT_MIN;
 
-    private function isCampoMaior($campo_anuncio, $campo_criterio)
-    {
-        if (is_null($campo_criterio)) {
+        if ($campo_anuncio < $campo_criterio_min) {
             return false;
         }
 
-        if (is_null($campo_anuncio)) {
-            return true;
+        $campo_criterio_max = $campo_criterio_max ?? PHP_INT_MAX;
+
+        if ($campo_anuncio > $campo_criterio_max) {
+            return false;
         }
 
-        if ($campo_anuncio > $campo_criterio) {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 }
