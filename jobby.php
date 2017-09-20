@@ -13,9 +13,9 @@ use Jobby\Jobby;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-const DB_PATH = __DIR__ . '/db.sqlite';
-
 $command = function () {
+
+    $DB_PATH = __DIR__ . '/db.sqlite';
 
     $env = new Dotenv(__DIR__);
     $env->load();
@@ -51,9 +51,9 @@ $command = function () {
         'dom-helder'
     ];
 
-    $criar_schema = !file_exists(DB_PATH);
+    $criar_schema = !file_exists($DB_PATH);
 
-    $repository = new AnunciosRepository(new \PDO('sqlite:' . DB_PATH));
+    $repository = new AnunciosRepository(new \PDO('sqlite:' . $DB_PATH));
 
     if ($criar_schema) {
         $repository->criarSchema();
@@ -106,10 +106,11 @@ $command = function () {
         $ceps_io = new CepsIO();
 
         foreach ($novos_anuncios as $anuncio) {
-
             $total_aluguel = (float)$anuncio->preco + (float)$anuncio->condominio;
 
-            if (!$endereco = $ceps_io->getEndereco($anuncio->cep)) {
+            try {
+                $endereco = $ceps_io->getEndereco($anuncio->cep);
+            } catch (\Exception $e) {
                 $endereco = $anuncio->bairro . ' / ' . $anuncio->cidade;
             }
 
@@ -132,10 +133,11 @@ $command = function () {
     return true;
 };
 
-$jobby = new Jobby();
+$jobby = new Jobby([
+    'debug' => true,
+]);
 
 $jobby->add('ProcurarAnuncios', [
-
     'schedule' => '*/5 * * * *',
 
     'maxRuntime' => '240',
